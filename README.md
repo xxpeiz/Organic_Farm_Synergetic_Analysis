@@ -1,6 +1,9 @@
 # Organic Farm Production-Sales Synergetic Analysis
 Full-stack Data Analysis Project
 
+Website Schematic:
 <img width="2548" height="1240" alt="屏幕截图 2025-12-24 140742" src="https://github.com/user-attachments/assets/e33032eb-e3ef-4ec6-987a-06de486741a3" />
 <img width="2546" height="1245" alt="屏幕截图 2025-12-24 140901" src="https://github.com/user-attachments/assets/b2d4a4d6-a941-42af-8263-33e20cfcd290" />
-![Uploading 屏幕截图 2025-12-24 141146.png…]()
+<img width="2552" height="1243" alt="屏幕截图 2025-12-24 141146" src="https://github.com/user-attachments/assets/c46a294b-5fb7-4154-9012-9d5168eebafd" />
+<img width="2553" height="1254" alt="屏幕截图 2025-12-24 141221" src="https://github.com/user-attachments/assets/2a7863e6-d0c8-45c5-a0fe-4465da4edcbc" />
+
