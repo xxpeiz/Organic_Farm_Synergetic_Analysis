@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>员工加入 - 绿色农场系统</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32; /* 农场绿 */
+            --accent-color: #4caf50;
+            --bg-color: #f0f4f1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 380px;
+            text-align: center;
+        }
+
+        .register-card h2 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #555;
+            padding-left: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+            background: #fff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        .footer-links {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .error-msg {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-card">
+    <h2>员工注册</h2>
+    <div class="subtitle">欢迎加入绿色农场管理团队</div>
+
+    {% if error %}
+    <div class="error-msg">{{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>工号 (作为登录账号)</label>
+            <input type="text" name="jobNumber" placeholder="例如: user01" required>
+        </div>
+
+        <div class="form-group">
+            <label>设置登录密码</label>
+            <input type="password" name="password" placeholder="请输入密码" required>
+        </div>
+
+        <div class="form-group">
+            <label>确认登录密码</label>
+            <input type="password" name="confirm_password" placeholder="请再次输入密码" required>
+        </div>
+
+        <button type="submit">完成注册</button>
+    </form>
+
+    <div class="footer-links">
+        已经有账号了？ <a href="/">立即登录</a>
+    </div>
+</div>
+
+</body>
+</html>

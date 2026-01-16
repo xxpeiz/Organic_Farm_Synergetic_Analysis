@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绿色农场 - 登录</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #02331f 0%, #33543e 100%);
+            height: 100vh; display: flex; align-items: center;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: none; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .btn-success { background-color: rgba(4, 194, 71, 0.79); border: none; }
+        .btn-success:hover { background-color: #03913c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card login-card p-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 mb-2">🌿</div>
+                        <h3 class="fw-bold text-dark">绿色农场管理系统</h3>
+                        <p class="text-muted small">Green Farm Management Platform</p>
+                    </div>
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-danger border-0 small py-2">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <form action="/" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">账号</label>
+                            <input type="text" name="jobNumber" class="form-control form-control-lg bg-light border-0" placeholder="Username" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">密码</label>
+                            <input type="password" name="plotCode" class="form-control form-control-lg bg-light border-0" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">进入系统</button>
+                    </form>
+                    <div style="margin-top: 15px; text-align: center; font-size: 14px;">
+                        还没有账号？<a href="/register/" style="color: #28a745; text-decoration: none; font-weight: bold;">立即注册员工账号</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

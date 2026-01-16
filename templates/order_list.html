@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>订单履约中心 - 智慧农场</title>
+    <style>
+        :root { --primary: #2e7d32; --bg: #f4f7f6; }
+        body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; }
+
+        /* 导航及标签页 */
+        .navbar { background: var(--primary); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab-item { padding: 12px 25px; background: white; border-radius: 8px; text-decoration: none; color: #666; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-item.active { background: var(--primary); color: white; font-weight: bold; }
+
+        /* 订单卡片 */
+        .order-card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #ddd; }
+        .order-card.status-pending { border-left-color: #ffa000; }
+        .order-card.status-shipped { border-left-color: #1976d2; }
+        .order-card.status-done { border-left-color: var(--primary); }
+
+        .header-info { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        .pref-box { background: #fff8e1; border: 1px solid #ffe082; padding: 12px; border-radius: 6px; font-size: 14px; color: #856404; margin-bottom: 15px; }
+
+        /* 表单样式 */
+        .ship-form { display: flex; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .input-text { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        .empty-state { text-align: center; padding: 50px; color: #999; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <strong>📦 订单履约与配送管理</strong>
+
+    <div class="nav-links">
+    {% if request.session.user_role == '管理员' %}
+        <a href="/plot_admin/" style="color: white; text-decoration: none; font-size: 14px;">← 返回管理员看板</a>
+    {% elif request.session.user_role == '员工' %}
+        <a href="/plot_staff/" style="color: white; text-decoration: none; font-size: 14px;">← 返回我的任务台</a>
+    {% else %}
+        <a href="/" style="color: white; text-decoration: none; font-size: 14px;">返回登录 (当前Session:{{ request.session.user_role }})</a>
+    {% endif %}
+</div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <a href="?status=待采摘" class="tab-item {% if current_status == '待采摘' %}active{% endif %}">📋 待采摘/发货</a>
+        <a href="?status=待配送" class="tab-item {% if current_status == '待配送' %}active{% endif %}">🚚 配送中</a>
+        <a href="?status=已完成" class="tab-item {% if current_status == '已完成' %}active{% endif %}">✅ 已完成评价</a>
+    </div>
+
+    {% for o in orders %}
+    <div class="order-card
+        {% if o.order_status == '待采摘' %}status-pending
+        {% elif o.order_status == '待配送' %}status-shipped
+        {% else %}status-done{% endif %}">
+
+        <div class="header-info">
+            <div>
+                <span style="color: #999; font-size: 12px;">订单号 #{{ o.o_id }}</span>
+                <h3 style="margin: 5px 0;">{{ o.crop_name }} × {{ o.count }}kg</h3>
+                <span style="color: #666; font-size: 14px;">客户：{{ o.customer_name|default:"匿名客户" }}</span>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #999;">目标地块</div>
+                <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ o.p_id }}</div>
+            </div>
+        </div>
+
+        <div class="pref-box">
+            <strong>📌 采摘/配送偏好：</strong>
+            {{ o.pref|default:"标准处理（客户暂无特殊标签）" }}
+        </div>
+
+        {% if o.order_status == '待采摘' %}
+            <form action="/update_delivery/" method="post" class="ship-form">
+                {% csrf_token %}
+                <input type="hidden" name="o_id" value="{{ o.o_id }}">
+                <input type="text" name="t_no" class="input-text" placeholder="请输入快递单号或配送员电话" required>
+                <button type="submit" class="btn-btn">确认打包发货</button>
+            </form>
+
+        {% elif o.order_status == '待配送' %}
+            <div style="display: flex; align-items: center; gap: 10px; color: #1976d2;">
+                <span>🚚 物流单号：</span>
+                <code>{{ o.tracking_no }}</code>
+                <span style="font-size: 12px; background: #e3f2fd; padding: 2px 8px; border-radius: 10px;">运送中...</span>
+            </div>
+
+        {% elif o.order_status == '已完成' %}
+            <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary);">
+                <strong>⭐ 客户签收反馈：</strong>
+                <p style="margin: 8px 0 0 0; color: #555; font-style: italic;">
+                    "{{ o.comment|default:"系统默认评价：商品新鲜，配送及时。" }}"
+                </p>
+            </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="80" style="opacity: 0.2;">
+        <p>当前分类下没有订单任务</p>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

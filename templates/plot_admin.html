@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>全场监测 - FARMER.IO ADMIN</title>
+    <style>
+        :root { --accent: #00c853; --dark-bg: #1a1c1e; --sidebar-bg: #111214; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: #fff; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .stat-card .value { font-size: 28px; font-weight: 800; color: var(--accent); }
+
+        .plot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .plot-card { background: white; border-radius: 24px; padding: 25px; border: 1px solid #eaedf0; position: relative; }
+        .status-pill { float: right; padding: 4px 12px; border-radius: 20px; font-size: 12px; background: #e8f5e9; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div style="padding: 40px 25px; font-size: 24px; font-weight: 800; color: var(--accent);">FARMER.IO</div>
+        <nav style="flex: 1;">
+            <a href="/plot_admin/" style="padding: 15px 25px; color: #fff; text-decoration: none; display: block; background: rgba(255,255,255,0.05);">🌿 全场资源监控</a>
+            <a href="/admin_operation/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📊 经营分析报告</a>
+            <a href="/order_list/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📦 实时订单</a>
+            <a href="/planting_plan/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📝 发布种植计划</a>
+        </nav>
+        <a href="/logout/" style="padding: 25px; color: #ff5252; text-decoration: none; border-top: 1px solid #333;">退出系统</a>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <div style="background: rgba(0,200,83,0.1); color: var(--accent); padding: 4px 12px; border-radius: 6px; display: inline-block; font-size: 12px; font-weight: 700;">ADMIN MODE</div>
+            <h1 style="margin: 10px 0;">农场生产大盘</h1>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>全场总地块</h4>
+                <div class="value">{{ plots|length }}</div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+        <div class="visual-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px;">
+
+            <div class="stat-card" style="height: 350px;">
+                <h4 style="margin-bottom: 20px;">🚜 地块利用率</h4>
+                <div id="statusChart" style="height: 280px;"></div>
+            </div>
+
+            <div class="stat-card" style="height: 350px;">
+             <h4 style="margin-bottom: 20px;">🍎 作物结构占比</h4>
+                <div id="cropChart" style="height: 280px;"></div>
+         </div>
+        </div>
+        <script>
+            // 1. 地块状态图表初始化
+            var statusDom = document.getElementById('statusChart');
+            var statusChart = echarts.init(statusDom);
+            statusChart.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { bottom: '0', left: 'center', textStyle: { color: '#95a5a6' } },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false },
+                    data: [
+                        {% for item in status_data %}
+                        { value: {{ item.value }}, name: '{{ item.status_name }}' },
+                        {% endfor %}
+                    ],
+                    color: ['#00c853', '#ff5252'] // 绿代表种植，红代表空闲（或反之）
+                }]
+            });
+
+            // 2. 作物结构图表初始化
+            var cropDom = document.getElementById('cropChart');
+            var cropChart = echarts.init(cropDom);
+            cropChart.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { bottom: '0', left: 'center', textStyle: { color: '#95a5a6' } },
+                series: [{
+                    name: '作物类型',
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        {% for item in crop_data %}
+                        { value: {{ item.value }}, name: '{{ item.name }}' },
+                        {% endfor %}
+                    ],
+                    emphasis: {
+                        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+                    }
+                }]
+            });
+        </script>
+
+        <div class="plot-grid">
+            {% for p in plots %}
+            <div class="plot-card">
+                <span class="status-pill">{{ p.record_status|default:"待整地" }}</span>
+                <div style="font-size: 20px; font-weight: 700;">{{ p.p_name }}</div>
+                <div style="color: #95a5a6; font-size: 13px; margin: 5px 0 15px;">编号：{{ p.p_id }}</div>
+
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 12px;">
+                    <div style="font-size: 12px; color: #95a5a6;">当前作物</div>
+                    <div style="font-weight: 700;">{{ p.crop|default:"无" }}</div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

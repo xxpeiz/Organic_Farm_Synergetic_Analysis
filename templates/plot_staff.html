@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的任务 - FARMER.IO STAFF</title>
+    <style>
+        :root { --accent: #2196f3; --dark-bg: #1a1c1e; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: #111214; color: #fff; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+
+        .plot-card { background: white; border-radius: 24px; padding: 28px; border: 1px solid #eaedf0; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .my-tag { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; position: absolute; top: 20px; right: 20px; }
+
+        .progress-bar { height: 6px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 65%; } /* 这里可根据 days_passed 动态算 */
+
+        .btn-primary { background: var(--dark-bg); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div style="padding: 40px 25px; font-size: 24px; font-weight: 800; color: var(--accent);">FARMER.IO</div>
+        <nav style="flex: 1;">
+            <a href="/plot_staff/" style="padding: 15px 25px; color: #fff; text-decoration: none; display: block; background: rgba(255,255,255,0.05);">🌿 我的责任田</a>
+            <a href="/order_list/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📦 待处理订单</a>
+            <a href="/harvest_record/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">🏁 生产采摘结算</a>
+        </nav>
+        <a href="/logout/" style="padding: 25px; color: #ff5252; text-decoration: none; border-top: 1px solid #333;">退出系统</a>
+    </aside>
+
+    <main class="main-content">
+        <header style="margin-bottom: 30px;">
+            <div style="color: var(--accent); font-weight: 700; font-size: 12px; letter-spacing: 1px;">STAFF WORKSPACE</div>
+            <h1 style="margin: 5px 0;">我的种植任务</h1>
+            <p style="color: #95a5a6;">你好，工号 {{ my_id }}。今天有 {{ plots|length }} 块地块需要关注。</p>
+        </header>
+
+        <div class="plot-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;">
+            {% for p in plots %}
+            <div class="plot-card">
+                <div class="my-tag">本人负责</div>
+                <div style="font-size: 24px; font-weight: 800;">{{ p.p_name }}</div>
+                <div style="color: #95a5a6; font-size: 14px;">作物：<b style="color: #1a1c1e;">{{ p.crop }}</b></div>
+
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #95a5a6;">
+                        <span>种植天数</span>
+                        <span>{{ p.days_passed }} 天</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                </div>
+
+                <div style="margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+                    {% if p.record_status == '生长中' %}
+                        <a href="/harvest_record/?p_id={{ p.p_id }}" style="text-decoration: none;">
+                            <button class="btn-primary" style="background: var(--dark-bg); transition: 0.3s;">
+                                🚀 完成采摘并释放地块
+                            </button>
+                        </a>
+                    {% elif p.record_status == '待采摘' %}
+                        <a href="/harvest_record/?p_id={{ p.p_id }}" style="text-decoration: none;">
+                            <button class="btn-primary" style="background: #f57c00; border: none;">
+                                📦 待采摘结算
+                            </button>
+                        </a>
+                    {% else %}
+                        <div style="text-align: center; color: #95a5a6; font-size: 14px; padding: 10px;">
+                            <i class="fa-solid fa-circle-check"></i> 该任务已结清
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px; color: #bdc3c7;">
+                <h2>目前没有分配给您的地块</h2>
+                <p>请联系管理员进行任务分派</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

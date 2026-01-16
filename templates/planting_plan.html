@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>发布任务 - FARMER.IO ADMIN</title>
+    <style>
+        :root { --accent: #00c853; --dark-bg: #1a1c1e; --sidebar-bg: #111214; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: #fff; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+
+        .form-container { max-width: 700px; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; color: #1a1c1e; font-size: 24px; font-weight: 800; }
+
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 10px; font-weight: 700; color: #444; font-size: 14px; }
+        select, input {
+            width: 100%; padding: 14px; border: 1px solid #eaedf0;
+            border-radius: 12px; box-sizing: border-box; background: #f8f9fa;
+            transition: 0.3s;
+        }
+        select:focus, input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+        .recommend-box { background: rgba(0,200,83,0.05); border: 1px solid rgba(0,200,83,0.2); padding: 18px; border-radius: 12px; margin-bottom: 30px; }
+        .btn-submit { width: 100%; padding: 16px; background: #1a1c1e; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: var(--accent); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div style="padding: 40px 25px; font-size: 24px; font-weight: 800; color: var(--accent);">FARMER.IO</div>
+    <nav style="flex: 1;">
+        <a href="/plot_admin/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">🌿 全场资源监控</a>
+        <a href="/admin_operation/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📊 经营分析报告</a>
+        <a href="/order_list/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📦 实时订单</a>
+        <a href="/planting_plan/" style="padding: 15px 25px; color: #fff; text-decoration: none; display: block; background: rgba(255,255,255,0.05);">📝 发布种植计划</a>
+    </nav>
+    <a href="/logout/" style="padding: 25px; color: #ff5252; text-decoration: none; border-top: 1px solid #333;">退出系统</a>
+</aside>
+
+<main class="main-content">
+    <div class="form-container">
+        <header style="margin-bottom: 30px;">
+            <div style="color: var(--accent); font-weight: 700; font-size: 12px; letter-spacing: 1px;">PLANNING SYSTEM</div>
+            <h2>下达新种植生产指令</h2>
+        </header>
+
+        <div class="recommend-box">
+            🌱 <strong>农时建议：</strong> 当前为 {{ now_month }} 月，推荐作物：
+            <span style="color: var(--accent); font-weight: bold;">{{ recommend_crops }}</span>
+        </div>
+
+
+<form action="/publish_plan/" method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>选择空闲地块</label>
+                    <select name="p_id" required>
+                        {% for p in free_plots %}
+                        <option value="{{ p.p_id }}">{{ p.p_id }} ({{ p.area }}亩)</option>
+                        {% empty %}
+                        <option disabled>暂无空闲地块</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>作物名称</label>
+                    <input type="text" name="crop" placeholder="如：阳光玫瑰葡萄" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>指派现场负责人（员工）</label>
+                <select name="u_id" required>
+                    <option value="">-- 请选择一名负责员工 --</option>
+                    {% for staff in all_staff %}
+                    <option value="{{ staff.u_id }}">{{ staff.username }} (ID: {{ staff.u_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>预估生长期 (天)</label>
+                <input type="number" name="total_days" value="90">
+            </div>
+
+            <button type="submit" class="btn-submit">确认发布并推送给员工</button>
+        </form>
+    </div>
+</main>
+
+</body>
+</html>

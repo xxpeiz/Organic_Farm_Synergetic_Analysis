@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>运营决策中心 - FARMER.IO</title>
+    <style>
+        :root {
+            --accent: #00c853;
+            --warning: #ffd600;
+            --danger: #ff5252;
+            --dark-bg: #1a1c1e;
+            --sidebar-bg: #111214;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            margin: 0; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background-color: #f4f7f9; color: #2c3e50;
+            display: flex; height: 100vh; overflow: hidden;
+        }
+
+        /* 侧边栏：同步 Plot_manage 风格 */
+        .sidebar {
+            width: 260px; background: var(--sidebar-bg); color: #fff;
+            display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.1); flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 40px 25px; font-size: 24px; font-weight: 800;
+            letter-spacing: -1px; color: var(--accent);
+        }
+
+        .nav-link {
+            padding: 18px 25px; color: #8a8d91; text-decoration: none;
+            display: flex; align-items: center; gap: 12px; transition: 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #fff; background: rgba(255,255,255,0.05);
+        }
+
+        .nav-link.active { border-right: 4px solid var(--accent); color: #fff; }
+
+        /* 主舞台布局 */
+        .main-content {
+            flex: 1; padding: 40px; overflow-y: auto;
+            display: grid; grid-template-rows: auto auto 1fr auto; gap: 30px;
+        }
+
+        /* KPI 指标卡片 */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg); padding: 25px; border-radius: 20px;
+            border: 1px solid #eaedf0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .stat-card h4 { margin: 0; font-size: 12px; text-transform: uppercase; color: #95a5a6; letter-spacing: 1px; }
+        .stat-card .value { font-size: 28px; font-weight: 800; margin-top: 10px; color: #1a1c1e; }
+        .stat-card.accent-border { border-bottom: 4px solid var(--accent); }
+
+        /* 内容板块布局 */
+        .content-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;
+        }
+
+        .panel {
+            background: var(--card-bg); border-radius: 24px; padding: 30px;
+            border: 1px solid #eaedf0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .panel h3 { margin: 0 0 25px 0; font-size: 18px; font-weight: 700; color: #1a1c1e; display: flex; align-items: center; gap: 10px; }
+        .panel h3::before { content: ''; width: 4px; height: 18px; background: var(--accent); border-radius: 10px; }
+
+        /* 进度条样式 */
+        .bar-item { margin-bottom: 22px; }
+        .bar-info { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; font-weight: 500; }
+        .bar-track { height: 8px; background: #f0f2f5; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease; }
+
+        /* 环形分布样式 */
+        .pie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .pie-unit { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 15px; }
+        .css-pie {
+            width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .pie-inner { width: 54px; height: 54px; background: #fff; border-radius: 50%; font-size: 12px; font-weight: 800; line-height: 54px; }
+
+        /* 决策建议区 */
+        .decision-box {
+            background: #1a1c1e; color: #fff; border-radius: 24px; padding: 30px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .advise-card {
+            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px;
+            border-left: 4px solid var(--accent); font-size: 14px; line-height: 1.6;
+        }
+
+    </style>
+</head>
+<body>
+
+
+    <aside class="sidebar">
+        <div style="padding: 40px 25px; font-size: 24px; font-weight: 800; color: var(--accent);">FARMER.IO</div>
+        <nav style="flex: 1;">
+            <a href="/plot_admin/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">🌿 全场资源监控</a>
+            <a href="/admin_operation/" style="padding: 15px 25px; color: #fff; text-decoration: none; display: block; background: rgba(255,255,255,0.05);">📊 经营分析报告</a>
+            <a href="/order_list/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📦 实时订单</a>
+            <a href="/planting_plan/" style="padding: 15px 25px; color: #8a8d91; text-decoration: none; display: block;">📝 发布种植计划</a>
+        </nav>
+        <a href="/logout/" style="padding: 25px; color: #ff5252; text-decoration: none; border-top: 1px solid #333;">退出系统</a>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1 style="margin:0; font-size: 32px; font-weight: 800;">运营决策中心</h1>
+            <p style="color: #95a5a6; margin: 8px 0 0;">实时监控全场种植匹配度与核心经营指标</p>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card accent-border">
+                <h4>订单履约率</h4>
+                <div class="value">{{ rate|floatformat:1 }}%</div>
+            </div>
+            <div class="stat-card">
+                <h4>平均客单价</h4>
+                <div class="value">￥{{ avg_value }}</div>
+            </div>
+            <div class="stat-card">
+                <h4>VIP 营收占比</h4>
+                <div class="value">{{ vip_ratio }}%</div>
+            </div>
+            <div class="stat-card">
+                <h4>在种品类</h4>
+                <div class="value">{{ resource_stats|length }}</div>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <div class="panel">
+                <h3>种植与订单需求匹配度</h3>
+                {% for g in matching_gap %}
+                <div class="bar-item">
+                    <div class="bar-info">
+                        <span>{{ g.crop }}</span>
+                        {% if g.gap < 0 %}
+                            <span style="color: var(--danger)">缺口: {{ g.abs_gap }} kg</span>
+                        {% else %}
+                            <span style="color: var(--accent)">盈余充足</span>
+                        {% endif %}
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: {% if g.gap < 0 %}35{% else %}100{% endif %}%;
+                             background: {% if g.gap < 0 %}var(--danger){% else %}var(--accent){% endif %};"></div>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="color:#999; text-align:center; padding-top:20px;">暂无匹配数据</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h3>作物资源投入占比</h3>
+                <div class="pie-grid">
+                    {% for item in resource_stats %}
+                    <div class="pie-unit">
+                        <div class="css-pie" style="background: conic-gradient(var(--accent) {{ item.percent }}%, #eee 0);">
+                            <div class="pie-inner">{{ item.percent|floatformat:0 }}%</div>
+                        </div>
+                        <div style="font-size: 13px; font-weight: 600; color: #5f6368;">{{ item.crop }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="decision-box">
+            <div style="font-weight: 800; font-size: 16px; color: var(--accent); margin-bottom: 5px;">🧠 AI 决策引擎建议</div>
+            <div class="advise-card">
+                <strong>[生产调度]</strong> 经大数据比对，当前种植资源与待采摘订单存在匹配差值。建议优先向 {% for g in matching_gap %}{% if g.gap < 0 %}{{ g.crop }} {% endif %}{% endfor %} 调配水肥资源，确保按时交付。
+            </div>
+            <div class="advise-card" style="border-left-color: #2196f3;">
+                <strong>[客户画像]</strong> VIP 客户群体贡献了 {{ vip_ratio }}% 的营收，建议针对高客单价客户推送“产地溯源”实时报告。
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

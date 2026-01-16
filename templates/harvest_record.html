@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>采摘结算 - 绿色农场</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --farm-green: #2e7d32;
+            --harvest-orange: #f57c00;
+            --bg-gray: #f0f2f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-gray);
+            margin: 0;
+            color: #333;
+        }
+
+        /* 现代导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, var(--farm-green) 0%, #1b5e20 100%);
+            color: white;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .navbar .brand { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .navbar a:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+
+        /* 采摘表单卡片 */
+        .harvest-container {
+            max-width: 550px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 顶部装饰条 */
+        .harvest-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(to right, var(--harvest-orange), #ffb74d);
+        }
+
+        h2 {
+            text-align: center;
+            color: #222;
+            margin-top: 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        h2 i { color: var(--harvest-orange); margin-right: 10px; }
+
+        .form-subtitle {
+            text-align: center;
+            color: #8898aa;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 25px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #525f7f;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e6ed;
+            border-radius: 12px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            background-color: #f9fbfd;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--harvest-orange);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1);
+        }
+
+        .btn-harvest {
+            background: linear-gradient(135deg, var(--harvest-orange) 0%, #e65100 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
+            margin-top: 10px;
+        }
+        .btn-harvest:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 124, 0, 0.4);
+            filter: brightness(1.1);
+        }
+        .btn-harvest:active { transform: translateY(0); }
+
+        .tips {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="brand">🌾 <span>绿色农场管理系统</span></div>
+    <div>
+        {% if request.session.user_role == '管理员' %}
+            <a href="/plot_admin/"><i class="fa-solid fa-house"></i> 返回看板</a>
+        {% else %}
+            <a href="/plot_staff/"><i class="fa-solid fa-tasks"></i> 我的任务</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="harvest-container">
+    <h2><i class="fa-solid fa-basket-shopping"></i> 生产采摘结算</h2>
+    <p class="form-subtitle">完成采摘后，系统将自动结算并释放地块</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="input-group">
+            <label><i class="fa-solid fa-map-location-dot"></i> 待采摘任务：</label>
+            <select name="r_id_pid" required>
+                <option value="" disabled selected>请选择要采摘的地块任务</option>
+                {% for r in records %}
+                <option value="{{ r.r_id }}|{{ r.p_id }}">【{{ r.p_id }}】作物：{{ r.crop }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fa-solid fa-weight-hanging"></i> 实际产出重量 (kg)：</label>
+            <input type="number" name="amount" step="0.1" placeholder="请输入称重数据" required>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fa-solid fa-magnifying-glass"></i> 果实品相评估：</label>
+            <select name="quality">
+                <option value="优">✨ 优（色泽匀称、无虫害）</option>
+                <option value="良">👍 良（大小均匀、轻微瑕疵）</option>
+                <option value="差">⚠️ 差（品相较差、不建议入库）</option>
+            </select>
+        </div>
+
+        <input type="hidden" name="r_id" id="r_id">
+        <input type="hidden" name="p_id" id="p_id">
+
+        <button type="submit" class="btn-harvest" onclick="return fillData()">确认采摘并释放地块</button>
+        <p class="tips">点击确认后，地块状态将重置为“空闲”</p>
+    </form>
+</div>
+
+<script>
+    function fillData() {
+        const select = document.getElementsByName('r_id_pid')[0];
+        if(!select.value) {
+            alert("请选择一个采摘任务");
+            return false;
+        }
+        const parts = select.value.split('|');
+        document.getElementById('r_id').value = parts[0];
+        document.getElementById('p_id').value = parts[1];
+        return true;
+    }
+</script>
+
+</body>
+</html>
